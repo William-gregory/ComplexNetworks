@@ -37,6 +37,7 @@ class Network:
         ID = np.where(np.abs(np.nanmax(self.data,2))>0)
         N = np.shape(ID)[1]
         R = np.corrcoef(self.data[ID])
+        np.fill_diagonal(R,np.nan)
         self.corrs = np.zeros((N,self.dimX,self.dimY))*np.nan
         self.nodes = ID[0]*self.dimY + ID[1]
         for n in range(N):
