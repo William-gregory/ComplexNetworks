@@ -51,7 +51,7 @@ class Network:
 
         self.tau = np.mean(R)
     
-    def vertices(self, latlon_grid=False):
+    def cluster(self, latlon_grid=False):
         ids = np.where(np.isnan(self.data[:,:,:]))
         i_nan = ids[0][0] ; j_nan = ids[1][0]
 
@@ -244,7 +244,7 @@ class Network:
                         self.unavail.append(self.V[max_ID][i])
                       
                 
-    def edges(self, area=None, lat=None):
+    def connect(self, area=None, lat=None):
         print('Generating network links')
         self.anomaly = {}
         self.links = {}
