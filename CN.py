@@ -91,13 +91,13 @@ class Network:
                 if ([cell[0],cell[1]-1] not in self.unavail) & (latlon_grid==False):
                     neighbours.append([cell[0],cell[1]-1] if 0 <= cell[1]-1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i_nan,j_nan])
                 elif ([cell[0],cell[1]-1] not in self.unavail) & (latlon_grid==True):
-                    neighbours.append([cell[0],cell[1]-1] if 0 <= cell[1]-1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i,self.dimY-1])
+                    neighbours.append([cell[0],cell[1]-1] if 0 <= cell[1]-1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [cell[0],self.dimY-1])
                 elif [cell[0],cell[1]-1] in self.unavail:
                     neighbours.append([i_nan,j_nan])
                 if ([cell[0],cell[1]+1] not in self.unavail) & (latlon_grid==False):
                     neighbours.append([cell[0],cell[1]+1] if 0 <= cell[1]+1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i_nan,j_nan])
                 elif ([cell[0],cell[1]+1] not in self.unavail) & (latlon_grid==True):
-                    neighbours.append([cell[0],cell[1]+1] if 0 <= cell[1]+1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i,0])
+                    neighbours.append([cell[0],cell[1]+1] if 0 <= cell[1]+1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [cell[0],0])
                 elif [cell[0],cell[1]+1] in self.unavail:
                     neighbours.append([i_nan,j_nan])
             return neighbours
