@@ -8,7 +8,7 @@ import itertools
 import operator
 
 class Network:
-    def __init__(self, data, dimX=0, dimY=0, dimT=0, V={}, corrs=[], tau=0, nodes=[], unavail=[], anomaly={}, links={},strength={},strengthmap=[]):
+    def __init__(self,data,dimX=0,dimY=0,dimT=0,V={},corrs=[],tau=0,nodes=[],unavail=[],anomaly={},links={},strength={},strengthmap=[]):
         """
         The input 'data' are expected to be de-trended (zero-mean)
         and in the format x,y,t if an area grid, or lat,lon,t for
