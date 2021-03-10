@@ -6,7 +6,6 @@ import numpy as np
 import warnings
 import datetime
 import itertools
-import os
 import operator
 import random
 from scipy import stats
