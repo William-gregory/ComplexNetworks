@@ -34,10 +34,9 @@ class Network:
         N = np.shape(ID)[1]
         R = np.corrcoef(data[ID])
         self.corrs = np.zeros((N,self.dimX,self.dimY))*np.nan
-        self.nodes = np.zeros(N)
+        self.nodes = ID[0]*self.dimY + ID[1]
         for n in range(N):
             self.corrs[n,:,:][ID] = R[n,:]
-            self.nodes[n] = ID[0][n]*self.dimY + ID[1][n]
         
         df = data.shape[2] - 2
         R = R[R>=0]
