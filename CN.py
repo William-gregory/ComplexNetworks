@@ -243,26 +243,23 @@ class Network:
 
         print('Done!')
                 
-    def intra_links(self, data, area=None, lat=None, cellsize=None):
+    def intra_links(self, data, area=None, lat=None):
         print('Generating network links')
-        print(datetime.datetime.now())
         self.anomaly = {}
         self.links = {}
+        self.strength = {}
         if lat is not None:
             scale = np.sqrt(np.cos(np.radians(lat)))
         elif area is not None:
             scale = np.sqrt(area)
-        elif cellsize is not None:
-            scale = np.ones((data.shape[0],data.shape[1]))*np.sqrt(cellsize)
         else:
-            scale = np.ones((data.shape[0],data.shape[1]))
+            scale = np.ones((self.dimX,self.dimY))
+            
         for A in self.V:
-            temp_array = np.zeros((data.shape))
-            temp_array[temp_array==0] = np.nan
+            temp_array = np.zeros((data.shape))*np.nan
             for cell in self.V[A]:
                 temp_array[cell[0],cell[1],:] = np.multiply(data[cell[0],cell[1],:],scale[cell[0],cell[1]])
-            temp = np.nansum(temp_array, axis=(0,1))
-            self.anomaly[A] = temp
+            self.anomaly[A] = np.nansum(temp_array, axis=(0,1))
             
         for A in self.anomaly:
             sdA = np.std(self.anomaly[A])
@@ -274,7 +271,7 @@ class Network:
                     self.links.setdefault(A, []).append(0)
             
         for A in self.links:
-            absolute = []  
-            for i in self.links[A]:
-                absolute.append(abs(i))
-            strength[A] = np.nansum(absolute)
+            absolute_links = []  
+            for link in self.links[A]:
+                absolute_links.append(abs(link))
+            strength[A] = np.nansum(absolute_links)
