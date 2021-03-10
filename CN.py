@@ -50,8 +50,8 @@ class Network:
 
         self.tau = np.mean(R)
     
-    def area_level(self, data, latlon_grid=False):
-        ids = np.where(np.isnan(data[:,:,:]))
+    def area_level(self, latlon_grid=False):
+        ids = np.where(np.isnan(self.data[:,:,:]))
         i_nan = ids[0][0] ; j_nan = ids[1][0]
 
         def cell_neighbours(i, j, i_nan, j_nan):
@@ -128,7 +128,6 @@ class Network:
         k = 0
         np.random.seed(2)
         print('Creating area-level network')  
-        print(datetime.datetime.now())
         for i,j in itertools.product(range(self.dimX),range(self.dimY)):
             node = i*self.dimY + j
             if node in self.nodes:
@@ -177,7 +176,7 @@ class Network:
                                 break
                         else:
                             break
-
+        
         self.unavail = []
         while True:
             num_cells = {}
@@ -242,14 +241,14 @@ class Network:
                 except ValueError:
                     for i in range(np.shape(self.V[max_ID])[0]):
                         self.unavail.append(self.V[max_ID][i])
-
-        print('Done!')
+                      
                 
-    def intra_links(self, data, area=None, lat=None):
+    def intra_links(self, area=None, lat=None):
         print('Generating network links')
         self.anomaly = {}
         self.links = {}
         self.strength = {}
+        self.strengthmap = np.zeros((self.dimX,self.dimY))*np.nan
         if lat is not None:
             scale = np.sqrt(np.cos(np.radians(lat)))
         elif area is not None:
@@ -258,9 +257,9 @@ class Network:
             scale = np.ones((self.dimX,self.dimY))
             
         for A in self.V:
-            temp_array = np.zeros((data.shape))*np.nan
+            temp_array = np.zeros(self.data.shape)*np.nan
             for cell in self.V[A]:
-                temp_array[cell[0],cell[1],:] = np.multiply(data[cell[0],cell[1],:],scale[cell[0],cell[1]])
+                temp_array[cell[0],cell[1],:] = np.multiply(self.data[cell[0],cell[1],:],scale[cell[0],cell[1]])
             self.anomaly[A] = np.nansum(temp_array, axis=(0,1))
             
         for A in self.anomaly:
@@ -276,4 +275,6 @@ class Network:
             absolute_links = []  
             for link in self.links[A]:
                 absolute_links.append(abs(link))
-            strength[A] = np.nansum(absolute_links)
+            self.strength[A] = np.nansum(absolute_links)
+            for cell in self.V[A]:
+                self.strengthmap[cell[0],cell[1]] = self.strength[A]
