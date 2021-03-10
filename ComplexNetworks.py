@@ -8,7 +8,7 @@ import itertools
 import operator
 
 class Network:
-    def __init__(self,data,dimX=0,dimY=0,dimT=0,V={},corrs=[],tau=0,nodes=[],unavail=[],anomaly={},links={},strength={},strengthmap=[]):
+    def __init__(self,data,dimX=0,dimY=0,dimT=0,nodes={},corrs=[],tau=0,gridcells=[],unavail=[],anomaly={},links={},strength={},strengthmap=[]):
         """
         The input 'data' are expected to be de-trended (zero-mean)
         and in the format x,y,t if an area grid, or lat,lon,t for
@@ -16,17 +16,17 @@ class Network:
         """
         self.data = data
         self.dimX,self.dimY,self.dimT = self.data.shape
-        self.V = V
+        self.nodes = nodes
         self.corrs = corrs
         self.tau = tau
-        self.nodes = nodes
+        self.gridcells = gridcells
         self.unavail = unavail
         self.anomaly = anomaly
         self.links = links
         self.strength = strength
         self.strengthmap = strengthmap
     
-    def threshold(self, significance=0.01):
+    def get_threshold(self, significance=0.01):
         """
         Compute pairwise correlations between all grid cells.
         The average of all correlations which are positive and
@@ -39,7 +39,7 @@ class Network:
         R = np.corrcoef(self.data[ID])
         np.fill_diagonal(R,np.nan)
         self.corrs = np.zeros((N,self.dimX,self.dimY))*np.nan
-        self.nodes = ID[0]*self.dimY + ID[1]
+        self.gridcells = ID[0]*self.dimY + ID[1]
         for n in range(N):
             self.corrs[n,:,:][ID] = R[n,:]
         
@@ -51,7 +51,13 @@ class Network:
 
         self.tau = np.mean(R)
     
-    def cluster(self, latlon_grid=False):
+    def get_nodes(self, latlon=False):
+        """
+        cluster grid cells together to from nodes of the
+        complex network. Clustering is based on a greedy
+        algorithm, and the threshold for clustering two 
+        grid cells together is defined by self.tau
+        """
         ids = np.where(np.isnan(self.data[:,:,:]))
         i_nan = ids[0][0] ; j_nan = ids[1][0]
 
@@ -64,15 +70,15 @@ class Network:
                 nei_2 = [i+1,j] if 0 <= j <= self.dimY-1 and 0 <= i+1 <= self.dimX-1 else [i_nan,j_nan]
             else:
                 nei_2 = [i_nan,j_nan]
-            if ([i,j-1] not in self.unavail) & (latlon_grid==False):
+            if ([i,j-1] not in self.unavail) & (latlon==False):
                 nei_3 = [i,j-1] if 0 <= j-1 <= self.dimY-1 and 0 <= i <= self.dimX-1 else [i_nan,j_nan]
-            elif ([i,j-1] not in self.unavail) & (latlon_grid==True):
+            elif ([i,j-1] not in self.unavail) & (latlon==True):
                 nei_3 = [i,j-1] if 0 <= j-1 <= self.dimY-1 and 0 <= i <= self.dimX-1 else [i,self.dimY-1]
             elif [i,j-1] in self.unavail:
                 nei_3 = [i_nan,j_nan]
-            if ([i,j+1] not in self.unavail) & (latlon_grid==False):
+            if ([i,j+1] not in self.unavail) & (latlon==False):
                 nei_4 = [i,j+1] if 0 <= j+1 <= self.dimY-1 and 0 <= i <= self.dimX-1 else [i_nan,j_nan]
-            elif ([i,j+1] not in self.unavail) & (latlon_grid==True):
+            elif ([i,j+1] not in self.unavail) & (latlon==True):
                 nei_4 = [i,j+1] if 0 <= j+1 <= self.dimY-1 and 0 <= i <= self.dimX-1 else [i,0]
             elif [i,j+1] in self.unavail:
                 nei_4 = [i_nan,j_nan]
@@ -89,15 +95,15 @@ class Network:
                     neighbours.append([cell[0]+1,cell[1]] if 0 <= cell[1] <= self.dimY-1 and 0 <= cell[0]+1 <= self.dimX-1 else [i_nan,j_nan])
                 else:
                     neighbours.append([i_nan,j_nan])
-                if ([cell[0],cell[1]-1] not in self.unavail) & (latlon_grid==False):
+                if ([cell[0],cell[1]-1] not in self.unavail) & (latlon==False):
                     neighbours.append([cell[0],cell[1]-1] if 0 <= cell[1]-1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i_nan,j_nan])
-                elif ([cell[0],cell[1]-1] not in self.unavail) & (latlon_grid==True):
+                elif ([cell[0],cell[1]-1] not in self.unavail) & (latlon==True):
                     neighbours.append([cell[0],cell[1]-1] if 0 <= cell[1]-1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [cell[0],self.dimY-1])
                 elif [cell[0],cell[1]-1] in self.unavail:
                     neighbours.append([i_nan,j_nan])
-                if ([cell[0],cell[1]+1] not in self.unavail) & (latlon_grid==False):
+                if ([cell[0],cell[1]+1] not in self.unavail) & (latlon==False):
                     neighbours.append([cell[0],cell[1]+1] if 0 <= cell[1]+1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [i_nan,j_nan])
-                elif ([cell[0],cell[1]+1] not in self.unavail) & (latlon_grid==True):
+                elif ([cell[0],cell[1]+1] not in self.unavail) & (latlon==True):
                     neighbours.append([cell[0],cell[1]+1] if 0 <= cell[1]+1 <= self.dimY-1 and 0 <= cell[0] <= self.dimX-1 else [cell[0],0])
                 elif [cell[0],cell[1]+1] in self.unavail:
                     neighbours.append([i_nan,j_nan])
@@ -107,10 +113,10 @@ class Network:
             Rmean = [] ; X = []
             for cell in neighbours:
                 R = []
-                new_node = cell[0]*self.dimY + cell[1]
-                if new_node in self.nodes:
+                new_cell = cell[0]*self.dimY + cell[1]
+                if new_cell in self.gridcells:
                     X.append(cell)
-                    IDnew = np.where(self.nodes == new_node)
+                    IDnew = np.where(self.gridcells == new_cell)
                     IDnew = int(IDnew[0])
                     for cells in Area:
                         if ([cells[0],cells[1]] != [cell[0],cell[1]]):
@@ -124,15 +130,14 @@ class Network:
 
         #S T E P   1   (C R E A T E   A R E A S)
 
-        self.V = {}
+        self.nodes = {}
         self.unavail = []
         k = 0
-        np.random.seed(2)
-        print('Creating area-level network')  
+        np.random.seed(2) 
         for i,j in itertools.product(range(self.dimX),range(self.dimY)):
-            node = i*self.dimY + j
-            if node in self.nodes:
-                ID = np.where(self.nodes == node)
+            gcell = i*self.dimY + j
+            if gcell in self.gridcells:
+                ID = np.where(self.gridcells == gcell)
                 ID = int(ID[0])
                 if [i,j] not in self.unavail:
                     while True:
@@ -150,14 +155,14 @@ class Network:
                                 maxID = int(maxID[0][np.random.randint(low=0,high=np.shape(maxID)[1])])
                             maxID = neighbours[maxID]
                             if ([i,j] not in self.unavail) and ([maxID[0],maxID[1]] not in self.unavail):
-                                self.V.setdefault(k, []).append([i,j])
-                                self.V.setdefault(k, []).append([maxID[0],maxID[1]])
+                                self.nodes.setdefault(k, []).append([i,j])
+                                self.nodes.setdefault(k, []).append([maxID[0],maxID[1]])
                                 self.unavail.append([i,j])
                                 self.unavail.append([maxID[0],maxID[1]])
 
                                 while True: #expand
-                                    neighbours = area_neighbours(self.V[k], i_nan, j_nan)
-                                    X, Rmean, Rmax = area_max_correlation(Area=self.V[k], neighbours=neighbours)
+                                    neighbours = area_neighbours(self.nodes[k], i_nan, j_nan)
+                                    X, Rmean, Rmax = area_max_correlation(Area=self.nodes[k], neighbours=neighbours)
                                     if Rmax > self.tau:
                                         RmaxID = np.where(Rmean==Rmax)
                                         if np.shape(RmaxID)[1] == 1:
@@ -166,7 +171,7 @@ class Network:
                                             RmaxID = int(RmaxID[0][np.random.randint(low=0,high=np.shape(RmaxID)[1])])
                                         m = X[RmaxID]
                                         if m not in self.unavail:
-                                            self.V.setdefault(k, []).append([m[0],m[1]])
+                                            self.nodes.setdefault(k, []).append([m[0],m[1]])
                                             self.unavail.append([m[0],m[1]])
                                         else:
                                             break
@@ -178,74 +183,49 @@ class Network:
                         else:
                             break
         
+        #S T E P   2   (M I N I M I S E   NO.   O F   A R E A S)
+        
         self.unavail = []
         while True:
-            num_cells = {}
-            Anei_Rs = {}
-            unavail_neis = []
-            #Identify largest area in terms of number of cells
-            for k in self.V:
-                if self.V[k][0] not in self.unavail:
-                    num_cells.setdefault(k, []).append(np.shape(self.V[k])[0])
-                else:
-                    num_cells.setdefault(k, []).append(0)
-            max_ID = max(num_cells.items(), key=operator.itemgetter(1))[0]
-            if num_cells[max_ID][0] == 0:
+            Rs = {}
+            unavail_neighbours = {}
+            num_cells = dict([(area,len(self.nodes[area])) if self.nodes[area] not in self.unavail else (area,0) for area in self.nodes.keys()])
+            maxID = max(num_cells.items(), key=operator.itemgetter(1))[0]
+            if num_cells[maxID] == 0:
                 break
             else:
-                #print('AreaID = ',max_ID, ', # of cells = ',len(self.V[max_ID]))
-                for X in self.V[max_ID]: #for each cell in the currently available largest area
-                    nei_1, nei_2, nei_3, nei_4 = cell_neighbours(X[0],X[1], i_nan, j_nan) #generate the cell's available neighbours
-                    nei_list = [nei_1, nei_2, nei_3, nei_4]
-                    for k in self.V: #search through all other areas in the network   
-                        for nei in nei_list: #search through each neighbour of the current cell in largest area
-                            R_mean = []
-                            if (nei not in self.V[max_ID]) & (nei in self.V[k]) & (nei not in unavail_neis): #if the neighbouring cell belongs to a neighbouring AREA, and is available
-                                #print('nei = ',nei,'is in Area ',k,'and is not in Area',max_ID)
-                                #print('Area',k,' = ',self.V[k])
-                                for i in range(np.shape(self.V[k])[0]):
-                                    unavail_neis.append(self.V[k][i])
-                                #here make a hypothetical area of the largest area (max_ID) and it's available neighbour (k) to check average correlation    
-                                hypoth_area = []
-                                for cell in self.V[max_ID]:
-                                    hypoth_area.append([cell[0],cell[1]])
-                                for cell in self.V[k]:
-                                    hypoth_area.append([cell[0],cell[1]])
-                                NA_list = []
-                                for cell in hypoth_area:
-                                    #print(cell)
-                                    R = []
-                                    ID = np.where(self.nodes == (cell[0]*self.dimY)+cell[1])
-                                    ID = int(ID[0])
-                                    for a in range(np.shape(hypoth_area)[0]):
-                                        b = int(hypoth_area[a][0])
-                                        c = int(hypoth_area[a][1])
-                                        if ([b,c] != [cell[0],cell[1]]) & ([b,c] not in NA_list):
-                                            #print('[',b,',',c,']')
-                                            R.append(self.corrs[ID,b,c])
-                                    NA_list.append([cell[0],cell[1]])
-                                    R_mean.append(np.nanmean(R))   
-                                if k not in Anei_Rs: 
-                                    Anei_Rs.setdefault(k, []).append(np.nanmean(R_mean))
-                                #print('Average correlation with Area',max_ID,'and neighbouring Area',k,' = ',Anei_Rs[k])
+                neighbours = area_neighbours(self.nodes[maxID], i_nan, j_nan)
+                for cell in neighbours:
+                    gcell = cell[0]*self.dimY + cell[1]
+                    Rmean = []                   
+                    if (gcell in self.gridcells) & (cell not in self.nodes[maxID]) & (cell not in [k for k, g in itertools.groupby(sorted(itertools.chain(*unavail_neighbours.values())))]) & (len([area for area, cells in self.nodes.items() if cell in cells]) > 0):
+                        nID = [area for area, cells in self.nodes.items() if cell in cells][0]
+                        unavail_neighbours[nID] = self.nodes[nID]
+                        X, Rmean, Rmax = area_max_correlation(Area=self.nodes[nID]+self.nodes[maxID], neighbours=self.nodes[nID]+self.nodes[maxID])
+                        if nID not in Rs: 
+                            Rs[nID] = np.nanmean(Rmean)
                 try:
-                    Anei_Rs_max_ID = max(Anei_Rs.items(), key=operator.itemgetter(1))[0]
-                    #print('Maximum correlation with neighbouring area = ',Anei_Rs[Anei_Rs_max_ID][0])
-                    if Anei_Rs[Anei_Rs_max_ID][0] > self.tau:
-                        #print('ID_pair = ',Anei_Rs_max_ID)
-                        temp2 = self.V.pop(Anei_Rs_max_ID, None)
-                        for i in temp2:
-                            self.V.setdefault(max_ID, []).append([i[0],i[1]])
+                    Rs_maxID = max(Rs.items(), key=operator.itemgetter(1))[0]
+                    if Rs[Rs_maxID] > self.tau:
+                        for cell in self.nodes.pop(Rs_maxID, None):
+                            self.nodes.setdefault(maxID, []).append([cell[0],cell[1]])
                     else:
-                        for i in range(np.shape(self.V[max_ID])[0]):
-                            self.unavail.append(self.V[max_ID][i])
+                        self.unavail.append(self.nodes[maxID])
                 except ValueError:
-                    for i in range(np.shape(self.V[max_ID])[0]):
-                        self.unavail.append(self.V[max_ID][i])
-                      
-                
-    def connect(self, area=None, lat=None):
-        print('Generating network links')
+                    self.unavail.append(self.nodes[maxID])
+        
+        
+    def get_links(self, area=None, lat=None):
+        """
+        compute the anomaly time series associated with
+        every node of the network, and subsequently compute
+        weighted links (based on covariance) between all of
+        these nodes. The strength of each node (also known as
+        the weighted degree), is defined as the sum of the
+        absolute value of each nodes links. Here the network
+        is fully connected, so every node connects to every other
+        node
+        """
         self.anomaly = {}
         self.links = {}
         self.strength = {}
@@ -257,9 +237,9 @@ class Network:
         else:
             scale = np.ones((self.dimX,self.dimY))
             
-        for A in self.V:
+        for A in self.nodes:
             temp_array = np.zeros(self.data.shape)*np.nan
-            for cell in self.V[A]:
+            for cell in self.nodes[A]:
                 temp_array[cell[0],cell[1],:] = np.multiply(self.data[cell[0],cell[1],:],scale[cell[0],cell[1]])
             self.anomaly[A] = np.nansum(temp_array, axis=(0,1))
             
@@ -277,5 +257,5 @@ class Network:
             for link in self.links[A]:
                 absolute_links.append(abs(link))
             self.strength[A] = np.nansum(absolute_links)
-            for cell in self.V[A]:
+            for cell in self.nodes[A]:
                 self.strengthmap[cell[0],cell[1]] = self.strength[A]
