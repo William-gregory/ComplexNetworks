@@ -26,7 +26,7 @@ class Network:
         self.links = links
         self.strength = strength
     
-    def tau(self, data, alpha):
+    def tau(self, data, significance=0.01):
         print('Generating threshold factor')
         print(datetime.datetime.now())
         
@@ -42,7 +42,7 @@ class Network:
         R = R[R>=0]
         T = R*np.sqrt(df/(1 - R**2))
         P = stats.t.sf(T,df)
-        R = R[P<alpha]
+        R = R[P<significance]
 
         self.tau = np.mean(R)
     
