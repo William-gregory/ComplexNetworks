@@ -6,9 +6,7 @@ import numpy as np
 import datetime
 import itertools
 import operator
-import random
 from scipy import stats
-import glob
 
 class Network:
     def __init__(self, dimX=0, dimY=0, nodes=[], corrs=[], tau=0, V={}, unavail=[], anomaly={}, links={},strength={}):
