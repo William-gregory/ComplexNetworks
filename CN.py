@@ -3,45 +3,52 @@
 ### Last updated: 09/03/2021
 
 import numpy as np
-import datetime
+from scipy import stats
 import itertools
 import operator
-from scipy import stats
 
 class Network:
-    def __init__(self, dimX=0, dimY=0, nodes=[], corrs=[], tau=0, V={}, unavail=[], anomaly={}, links={},strength={}):
-        self.dimX = dimX
-        self.dimY = dimY
-        self.nodes = nodes
+    def __init__(self, data, dimX=0, dimY=0, dimT=0, gridcells=[], corrs=[], tau=0, nodes={}, unavail=[], anomaly={}, links={},strength={},strengthmap=[]):
+        """
+        The input 'data' are expected to be de-trended (zero-mean)
+        and in the format x,y,t if an area grid, or lat,lon,t for
+        a lat-lon grid.
+        """
+        self.data = data
+        self.dimX,self.dimY,self.dimT = self.data.shape
+        self.gridcells = gridcells
         self.corrs = corrs
         self.tau = tau
-        self.V = V
+        self.nodes = nodes
         self.unavail = unavail
         self.anomaly = anomaly
         self.links = links
         self.strength = strength
+        self.strengthmap = strengthmap
     
-    def tau(self, data, significance=0.01):
-        print('Generating threshold factor')
-        print(datetime.datetime.now())
-        
-        ID = np.where(np.abs(np.nanmax(data,2))>0)
+    def tau(self, significance=0.01):
+        """
+        Compute pairwise correlations between all grid cells.
+        The average of all correlations which are positive and
+        below a specified significance level will determine the
+        threshold which is used to cluster cells to form network
+        nodes in the function area_level().
+        """
+        ID = np.where(np.abs(np.nanmax(self.data,2))>0)
         N = np.shape(ID)[1]
-        R = np.corrcoef(data[ID])
+        R = np.corrcoef(self.data[ID])
         self.corrs = np.zeros((N,self.dimX,self.dimY))*np.nan
         self.nodes = ID[0]*self.dimY + ID[1]
         for n in range(N):
             self.corrs[n,:,:][ID] = R[n,:]
         
-        df = data.shape[2] - 2
+        df = self.dimT - 2
         R = R[R>=0]
         T = R*np.sqrt(df/(1 - R**2))
         P = stats.t.sf(T,df)
         R = R[P<significance]
 
         self.tau = np.mean(R)
-    
-        print('Network threshold factor =', '%.3f' % self.tau)
     
     def area_level(self, data, latlon_grid=False):
         ids = np.where(np.isnan(data[:,:,:]))
