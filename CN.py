@@ -1,6 +1,6 @@
 ### Compute Complex Networks of geospatial time series data
 ### Author: William Gregory
-### Last updated: 09/03/2021
+### Last updated: 10/03/2021
 
 import numpy as np
 from scipy import stats
@@ -8,7 +8,7 @@ import itertools
 import operator
 
 class Network:
-    def __init__(self, data, dimX=0, dimY=0, dimT=0, gridcells=[], corrs=[], tau=0, nodes={}, unavail=[], anomaly={}, links={},strength={},strengthmap=[]):
+    def __init__(self, data, dimX=0, dimY=0, dimT=0, V={}, corrs=[], tau=0, nodes=[], unavail=[], anomaly={}, links={},strength={},strengthmap=[]):
         """
         The input 'data' are expected to be de-trended (zero-mean)
         and in the format x,y,t if an area grid, or lat,lon,t for
@@ -16,7 +16,7 @@ class Network:
         """
         self.data = data
         self.dimX,self.dimY,self.dimT = self.data.shape
-        self.gridcells = gridcells
+        self.V = V
         self.corrs = corrs
         self.tau = tau
         self.nodes = nodes
