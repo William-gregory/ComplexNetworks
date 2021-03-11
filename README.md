@@ -12,9 +12,15 @@ For plotting in the Jupyter notebook, I have made use of:
 `Basemap`
 `Networkx`
 
-If you would like to use this methodology, please cite the following publication where this code was first implemented for the purposes of sea ice forecasting:
+## Cite
+The network methodology used here is based on work by:
 
-Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806, url: [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)
+`Fountalis, I., Bracco, A. and Dovrolis, C., 2014. Spatio-temporal network analysis for studying climate patterns. Climate dynamics, 42(3-4), pp.879-899.`
+
+however this code was written and implemented for use in the following publication, therefore please cite the article below if you wish to reproduce this code.
+
+`Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806, url: [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)`
+
 
 
 
