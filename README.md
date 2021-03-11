@@ -17,7 +17,7 @@ The network methodology used here is based on work by:
 
 `Fountalis, I., Bracco, A. and Dovrolis, C., 2014. Spatio-temporal network analysis for studying climate patterns. Climate dynamics, 42(3-4), pp.879-899.` [Fountalis et al., 2014](https://www.cc.gatech.edu/fac/constantinos.dovrolis/Papers/ilias-climdyn14.pdf),
 
-however this code was written and implemented for use in the following article: 
+however the code in this repository was written and implemented for use in the following article: 
 
 `Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806.`
 
