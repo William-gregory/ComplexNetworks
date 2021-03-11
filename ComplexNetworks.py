@@ -32,7 +32,7 @@ class Network:
         The average of all correlations which are positive and
         below a specified significance level will determine the
         threshold which is used to cluster cells to form network
-        nodes in the function area_level().
+        nodes in the function get_nodes().
         """
         ID = np.where(np.abs(np.nanmax(self.data,2))>0)
         N = np.shape(ID)[1]
