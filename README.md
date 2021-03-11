@@ -19,7 +19,7 @@ The network methodology used here is based on work by:
 
 however this code was written and implemented for use in the following publication, therefore please cite the article below if you wish to reproduce this code.
 
-`Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806.` [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)`
+`Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806.` [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)
 
 
 
