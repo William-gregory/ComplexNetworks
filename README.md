@@ -15,11 +15,11 @@ For plotting in the Jupyter notebook, I have made use of:
 ## Cite
 The network methodology used here is based on work by:
 
-`Fountalis, I., Bracco, A. and Dovrolis, C., 2014. Spatio-temporal network analysis for studying climate patterns. Climate dynamics, 42(3-4), pp.879-899.`
+`Fountalis, I., Bracco, A. and Dovrolis, C., 2014. Spatio-temporal network analysis for studying climate patterns. Climate dynamics, 42(3-4), pp.879-899.` [Fountalis et al., 2014](https://www.cc.gatech.edu/fac/constantinos.dovrolis/Papers/ilias-climdyn14.pdf),
 
 however this code was written and implemented for use in the following publication, therefore please cite the article below if you wish to reproduce this code.
 
-`Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806, url: [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)`
+`Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806.` [Gregory et al., 2020](https://discovery.ucl.ac.uk/id/eprint/10091542/1/Gregory_wafd190107.pdf)`
 
 
 
