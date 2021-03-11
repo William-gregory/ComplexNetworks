@@ -1,4 +1,13 @@
 # Complex Networks
-A python library for creating complex networks of geospatial time series data - here examples from climate science
+A python library for creating complex networks of geospatial time series data, with an accompanying Jupyter notebook containing an example of generating complex networks of sea surface temperature data.
+
+The library ComplexNetworks.py requires both numpy and scipy to be installed.
+For the plotting, I have used matplotlib, Basemap, and networkx
+
+If you would like to use this methodology, please cite the following publication where this code was first implemented for the purposes of sea ice forecasting:
+
+Gregory, W., Tsamados, M., Stroeve, J. and Sollich, P., 2020. Regional September Sea Ice Forecasting with Complex Networks and Gaussian Processes. Weather and Forecasting, 35(3), pp.793-806, doi: 
+
+
 
 ![alt text](https://github.com/William-gregory/ComplexNetworks/blob/main/images/SST_networks.png)
