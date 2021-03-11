@@ -1,7 +1,7 @@
 ## Complex Networks
 A python library for creating complex networks of geospatial time series data, with an accompanying Jupyter notebook containing an example of generating complex networks of sea surface temperature data.
 
-The library ComplexNetworks.py requires the following python libraries:
+The ComplexNetworks.py code requires the following python libraries to be installed:
 
 `NumPy`
 `SciPy`
