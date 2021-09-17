@@ -34,7 +34,7 @@ class Network:
         threshold which is used to cluster cells to form network
         nodes in the function get_nodes().
         """
-        ID = np.where(np.abs(np.nanmax(self.data,2))>0)
+        ID = np.where(~np.isnan(self.data).any(2))
         N = np.shape(ID)[1]
         R = np.corrcoef(self.data[ID])
         np.fill_diagonal(R,np.nan)
